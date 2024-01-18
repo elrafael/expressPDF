@@ -5,7 +5,7 @@ const fs = require("fs")
 const router = express.Router()
 
 router.get("/", (req, res) => {
-  const pdfFile = "./assets/calibration.pdf"
+  const pdfFile = ".output/static/assets/calibration.pdf"
   if (fs.existsSync(pdfFile)) {
     res.contentType("application/pdf")
     fs.createReadStream(pdfFile).pipe(res)
