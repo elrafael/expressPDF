@@ -1,18 +1,33 @@
 const express = require("express")
 const app = express()
-const fs = require("fs")
-
 const router = express.Router()
+require("dotenv").config()
 
-router.get("/", (req, res) => {
-  const pdfFile = ".output/static/assets/calibration.pdf"
-  if (fs.existsSync(pdfFile)) {
-    res.contentType("application/pdf")
-    fs.createReadStream(pdfFile).pipe(res)
-  } else {
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3")
+const config = {
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESSKEY,
+    secretAccessKey: process.env.AWS_SECRETACCESS,
+  },
+}
+
+const client = new S3Client(config)
+
+router.get("/", async (req, res) => {
+  const params = {
+    Bucket: process.env.S3_BUCKET,
+    Key: process.env.S3_KEY,
+  }
+  const command = new GetObjectCommand(params)
+
+  try {
+    const response = await client.send(command)
+    res.status(200)
+    response.Body.pipe(res)
+  } catch (err) {
     res.status(500)
-    console.log("File not found")
-    res.send("File not found")
+    res.send("Something wrong")
   }
 })
 
