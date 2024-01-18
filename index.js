@@ -19,10 +19,13 @@ router.get("/", async (req, res) => {
       Key: process.env.S3_KEY,
     }
     const command = new GetObjectCommand(params)
+    const fileName = "invoice.pdf"
 
     const client = new S3Client(config)
     const response = await client.send(command)
     res.status(200)
+    res.setHeader("Content-disposition", 'inline; filename="' + fileName + '"')
+    res.contentType("application/pdf")
     response.Body.pipe(res)
   } catch (err) {
     res.status(500)
@@ -31,4 +34,6 @@ router.get("/", async (req, res) => {
 })
 
 app.use("/", router)
-app.listen(8080, () => console.log(`Listen on http://localhost:8080`))
+app.listen(process.env.PORT, () =>
+  console.log(`Listen on http://localhost:${process.env.PORT}`)
+)
