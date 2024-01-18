@@ -12,16 +12,15 @@ const config = {
   },
 }
 
-const client = new S3Client(config)
-
 router.get("/", async (req, res) => {
-  const params = {
-    Bucket: process.env.S3_BUCKET,
-    Key: process.env.S3_KEY,
-  }
-  const command = new GetObjectCommand(params)
-
   try {
+    const params = {
+      Bucket: process.env.S3_BUCKET,
+      Key: process.env.S3_KEY,
+    }
+    const command = new GetObjectCommand(params)
+
+    const client = new S3Client(config)
     const response = await client.send(command)
     res.status(200)
     response.Body.pipe(res)
